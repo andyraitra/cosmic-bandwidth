@@ -1,0 +1,48 @@
+# Transitive advisories pulled in by libcosmic (pinned rev 430f3d48), not fixable here without
+# forking it: the official cosmic-applets carry the same ones. Each entry expires so it gets
+# re-checked; bump libcosmic first, then drop whatever no longer applies.
+
+[[IgnoredVulns]]
+id = "RUSTSEC-2026-0186"
+ignoreUntil = 2027-01-31
+reason = "memmap2 0.8 unchecked pointer offset: required by xkbcommon 0.7 (iced_winit) for the compositor keymap; fixed in 0.9.11, which xkbcommon 0.7 does not accept"
+
+[[IgnoredVulns]]
+id = "RUSTSEC-2026-0253"
+ignoreUntil = 2027-01-31
+reason = "lru 0.16 use-after-free only if LruCache::pop panics: used by cryoglyph (iced_wgpu text cache), pinned by libcosmic; fixed in 0.18.2"
+
+[[IgnoredVulns]]
+id = "RUSTSEC-2024-0436"
+ignoreUntil = 2027-01-31
+reason = "paste unmaintained (no known vulnerability): proc-macro used by metal/wgpu-hal, macOS only, not built on Linux"
+
+[[IgnoredVulns]]
+id = "RUSTSEC-2026-0206"
+ignoreUntil = 2027-01-31
+reason = "rustybuzz unmaintained (no known vulnerability): text shaping in usvg/resvg (iced_tiny_skia SVG rendering)"
+
+[[IgnoredVulns]]
+id = "RUSTSEC-2026-0192"
+ignoreUntil = 2027-01-31
+reason = "ttf-parser unmaintained (no known vulnerability): font parsing in cosmic-text, system fonts only"
+
+[[IgnoredVulns]]
+id = "RUSTSEC-2026-0371"
+ignoreUntil = 2027-01-31
+reason = "zbus_names unmaintained (no known vulnerability): D-Bus stack used by libcosmic and notify-rust"
+
+[[IgnoredVulns]]
+id = "RUSTSEC-2026-0370"
+ignoreUntil = 2027-01-31
+reason = "zvariant unmaintained (no known vulnerability): D-Bus stack used by libcosmic and notify-rust"
+
+[[IgnoredVulns]]
+id = "RUSTSEC-2026-0372"
+ignoreUntil = 2027-01-31
+reason = "zvariant_derive unmaintained (no known vulnerability): D-Bus stack used by libcosmic and notify-rust"
+
+[[IgnoredVulns]]
+id = "RUSTSEC-2026-0374"
+ignoreUntil = 2027-01-31
+reason = "basic-toml unmaintained (no known vulnerability): build-time only, via i18n-embed-fl proc-macro"
