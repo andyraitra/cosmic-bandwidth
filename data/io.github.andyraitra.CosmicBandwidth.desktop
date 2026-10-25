@@ -1,0 +1,14 @@
+[Desktop Entry]
+Name=Bandwidth
+Comment=Débit réseau et consommation data du mois
+Type=Application
+Exec=cosmic-bandwidth
+Terminal=false
+Categories=COSMIC;
+Keywords=COSMIC;Applet;Network;Data;Bandwidth;Réseau;
+Icon=network-wireless-symbolic
+StartupNotify=true
+NoDisplay=true
+X-CosmicApplet=true
+X-CosmicHoverPopup=Auto
+X-OverflowPriority=10

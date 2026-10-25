@@ -1,0 +1,36 @@
+[package]
+name = "cosmic-bandwidth"
+version = "0.1.0"
+edition = "2024"
+description = "COSMIC panel applet: live network rate and monthly data usage against a cap"
+license = "GPL-3.0-only"
+repository = "https://github.com/andyraitra/cosmic-bandwidth"
+readme = "README.md"
+keywords = ["cosmic", "applet", "network", "bandwidth"]
+categories = ["gui"]
+publish = false
+
+[dependencies]
+chrono = { version = "0.4", default-features = false, features = ["clock"] }
+libcosmic = { git = "https://github.com/pop-os/libcosmic", rev = "430f3d48a97d8779f9c1985473912e594ccca1ae", default-features = false, features = [
+    "applet",
+    "dbus-config",
+    "multi-window",
+    "tokio",
+    "wayland",
+    "winit",
+] }
+notify-rust = "4"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tempfile = "3"
+tokio = { version = "1", features = ["macros", "rt", "signal"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+[patch."https://github.com/smithay/client-toolkit.git"]
+sctk = { package = "smithay-client-toolkit", version = "0.20.0" }
+
+[profile.release]
+opt-level = 3
+lto = "thin"
