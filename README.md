@@ -1,57 +1,69 @@
 # cosmic-bandwidth
 
-Applet pour le panneau COSMIC, équivalent de Bandwidth+ sur macOS : débit en direct et
-consommation data du mois par rapport à un plafond.
+[![CI](https://github.com/andyraitra/cosmic-bandwidth/actions/workflows/ci.yml/badge.svg)](https://github.com/andyraitra/cosmic-bandwidth/actions/workflows/ci.yml)
 
-Panneau : `↓1.2 Mo/s ↑40.0 Ko/s · 12.4/50 Go`. Au clic : reçu / envoyé, jauge, date de remise à
-zéro, plafond réglable, remise à zéro manuelle. Notification à 80 % et à 100 % du plafond.
+A [COSMIC](https://system76.com/cosmic) panel applet in the spirit of Bandwidth+ on macOS: live
+network rate and this month's data usage against an optional cap.
 
-## Installation (sans sudo)
+Panel: `↓1.2 Mo/s ↑40.0 Ko/s · 12.4/50 Go`. Click it for received / sent totals, a gauge, the
+next reset date, the cap setting and a manual reset. Notifications fire at 80 % and 100 % of the
+cap. The interface is in French.
 
-Prérequis de compilation (une fois) :
+## Install (no root needed)
 
-    sudo apt install libxkbcommon-dev libudev-dev libinput-dev libfontconfig-dev just
+Build dependencies (once):
 
-Puis :
+    sudo apt install pkg-config libxkbcommon-dev libwayland-dev libudev-dev libinput-dev libfontconfig-dev just
+
+A Rust toolchain is required ([rustup](https://rustup.rs)). Then:
 
     just install
 
-Le binaire va dans `~/.local/bin`, le `.desktop` dans `~/.local/share/applications`. Ajouter
-l'applet : Paramètres → Bureau → Panneau → Applets → Bandwidth. Désinstaller : `just uninstall`.
+The binary goes to `~/.local/bin` and the `.desktop` entry to `~/.local/share/applications`. Add
+the applet from Settings → Desktop → Panel → Applets → Bandwidth. Remove it with
+`just uninstall`.
 
-## Fonctionnement
+## How it works
 
-- Compte les octets de `/sys/class/net/<interface>/statistics/{rx,tx}_bytes` toutes les 2 s.
-- Cumul du mois : `~/.local/state/cosmic-bandwidth/usage.json` (écriture atomique, au plus toutes
-  les 30 s, et à l'arrêt). Un fichier invalide ou illisible est mis de côté en
-  `usage.json.corrupt-<horodatage>` (jamais écrasé) ; s'il ne peut pas l'être, la sauvegarde est
-  désactivée plutôt que d'écraser des données.
-- Plusieurs instances (panneau sur plusieurs écrans, panneau + dock) : une seule compte et
-  sauvegarde (verrou `usage.json.lock`), les autres affichent le même cumul. La remise à zéro
-  depuis n'importe laquelle passe par la config et s'applique partout.
-- Remise à zéro le 1er du mois à 00:00 (heure locale). Si l'horloge recule de plus d'un mois
-  (horloge matérielle déréglée), le cumul est conservé et rattaché au mois courant.
-- Unités décimales (1 Go = 10⁹ octets), comme macOS et les opérateurs.
+- Every 2 s, reads `/sys/class/net/<interface>/statistics/{rx,tx}_bytes` and adds the deltas, so
+  kernel counter resets (reboot, interface down/up) never inflate the total.
+- The month's usage is saved in `~/.local/state/cosmic-bandwidth/usage.json`: atomic writes, at
+  most every 30 s, immediately on rollover / alert / cap change / reset, and on exit. A file that
+  cannot be read or parsed is moved aside to `usage.json.corrupt-<time>` and never overwritten;
+  if it cannot be moved aside, saving is disabled instead of risking the data.
+- COSMIC runs one applet process per panel / dock and per screen. Exactly one of them counts,
+  alerts and saves (lock `usage.json.lock`); the others show the same usage. A reset done from
+  any of them applies everywhere.
+- Usage resets on the 1st of the month at 00:00 local time. If the clock goes back more than a
+  month (broken hardware clock), the usage is kept and moved to the current month.
+- Decimal units (1 Go = 10⁹ bytes), as macOS and carriers use.
 
-Limites connues :
+Known limitations:
 
-- le trafic qui passe pendant que l'applet ne tourne pas (session fermée, machine éteinte) n'est
-  pas compté ;
-- quand une instance reprend le comptage d'une autre (redémarrage du panneau), au plus un tick
-  (2 s) de trafic peut manquer — jamais compté deux fois ;
-- si le fichier d'état n'a pas pu être lu, la sauvegarde reste désactivée jusqu'au redémarrage
-  de l'applet (le comptage et les alertes continuent).
-- une remise à zéro demandée depuis une instance secondaire est perdue si l'instance qui compte
-  s'arrête dans les quelques millisecondes qui suivent, avant de l'avoir reçue.
+- traffic while no applet runs (logged out, powered off) is not counted;
+- when another applet process takes over the counting (panel restart), up to one 2 s tick of
+  traffic may be missed — never counted twice;
+- after a state file that could not be read, saving stays off until the applet restarts
+  (counting and alerts go on);
+- a reset requested from a secondary instance is lost if the counting instance exits within the
+  few milliseconds before it receives it.
 
-## Réglages
+## Settings
 
-`~/.config/cosmic/io.github.andyraitra.CosmicBandwidth/v1/` :
+`~/.config/cosmic/io.github.andyraitra.CosmicBandwidth/v1/`:
 
-- `interface` : interface comptée, `"wlp2s0f0"` par défaut ;
-- `cap_bytes` : plafond en octets, `0` = aucun (aussi réglable depuis l'applet) ;
-- `reset_requests` : compteur interne des demandes de remise à zéro.
+- `interface`: counted interface, `"wlp2s0f0"` by default;
+- `cap_bytes`: cap in bytes, `0` = none (also set from the applet, in Go);
+- `reset_requests`: internal counter of reset requests.
 
-Exemple pour compter l'Ethernet :
+Example, to count Ethernet:
 
     echo '"enp59s0"' > ~/.config/cosmic/io.github.andyraitra.CosmicBandwidth/v1/interface
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). Security issues: [SECURITY.md](SECURITY.md).
+
+## License
+
+[GPL-3.0-only](LICENSE), like libcosmic.

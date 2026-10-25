@@ -4,6 +4,11 @@ version = "0.1.0"
 edition = "2024"
 description = "COSMIC panel applet: live network rate and monthly data usage against a cap"
 license = "GPL-3.0-only"
+repository = "https://github.com/andyraitra/cosmic-bandwidth"
+readme = "README.md"
+keywords = ["cosmic", "applet", "network", "bandwidth"]
+categories = ["gui"]
+publish = false
 
 [dependencies]
 chrono = { version = "0.4", default-features = false, features = ["clock"] }
