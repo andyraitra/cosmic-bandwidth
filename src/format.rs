@@ -66,14 +66,11 @@ pub fn percent(total: u64, cap: Option<u64>) -> Option<String> {
     Some(format!("{pct} %"))
 }
 
-/// Panel label: `↓1.2 Mo/s ↑40.0 Ko/s · 12.4/50 Go`, `— · …` while the interface
-/// is missing, usage only on a vertical panel.
-pub fn panel(rate: Option<(f64, f64)>, total: u64, cap: Option<u64>, horizontal: bool) -> String {
-    let usage = usage(total, cap);
-    match (horizontal, rate) {
-        (false, _) => usage,
-        (true, Some((rx, tx))) => format!("↓{} ↑{} · {usage}", self::rate(rx), self::rate(tx)),
-        (true, None) => format!("— · {usage}"),
+/// Popup rate line: `↓1.2 Mo/s ↑40.0 Ko/s`, `—` while the interface is missing.
+pub fn live_rate(rate: Option<(f64, f64)>) -> String {
+    match rate {
+        Some((rx, tx)) => format!("↓{} ↑{}", self::rate(rx), self::rate(tx)),
+        None => "—".into(),
     }
 }
 
@@ -214,28 +211,12 @@ mod tests {
     }
 
     #[test]
-    fn panel_labels() {
-        let rate = Some((1_200_000.0, 40_000.0));
+    fn live_rates() {
         assert_eq!(
-            panel(rate, 12_400_000_000, Some(50_000_000_000), true),
-            "↓1.2 Mo/s ↑40.0 Ko/s · 12.4/50 Go"
+            live_rate(Some((1_200_000.0, 40_000.0))),
+            "↓1.2 Mo/s ↑40.0 Ko/s"
         );
-        assert_eq!(
-            panel(Some((0.0, 0.0)), 12_400_000_000, None, true),
-            "↓0 o/s ↑0 o/s · 12.4 Go"
-        );
-        assert_eq!(panel(None, 12_400_000_000, Some(0), true), "— · 12.4 Go");
-        assert_eq!(
-            panel(rate, 12_400_000_000, Some(50_000_000_000), false),
-            "12.4/50 Go"
-        );
-    }
-
-    #[test]
-    fn vertical_panel_without_interface_shows_usage_only() {
-        assert_eq!(
-            panel(None, 12_400_000_000, Some(50_000_000_000), false),
-            "12.4/50 Go"
-        );
+        assert_eq!(live_rate(Some((0.0, 0.0))), "↓0 o/s ↑0 o/s");
+        assert_eq!(live_rate(None), "—");
     }
 }

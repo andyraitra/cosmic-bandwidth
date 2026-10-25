@@ -9,6 +9,7 @@ use std::time::{Duration, Instant};
 use chrono::Datelike;
 use cosmic::cosmic_config::{self, CosmicConfigEntry};
 use cosmic::iced::futures::{SinkExt, channel::mpsc};
+use cosmic::iced::widget::text::Wrapping;
 use cosmic::iced::{self, Alignment, Length, Subscription, stream, window};
 use cosmic::widget::{button, column, divider, progress_bar, row, text, text_input};
 use cosmic::{Element, Task, app, surface, theme};
@@ -303,6 +304,7 @@ impl Bandwidth {
         let mut content = column![
             text::heading("Données ce mois"),
             text::caption(status),
+            line("Débit", format::live_rate(self.rate)),
             line("Reçu", format::bytes(usage.rx)),
             line("Envoyé", format::bytes(usage.tx)),
             line("Total", format::usage(usage.total(), cap)),
@@ -533,17 +535,16 @@ impl cosmic::Application for Bandwidth {
     }
 
     fn view(&self) -> Element<'_, Message> {
+        let label = self
+            .core
+            .applet
+            .text(format::usage(self.tracker.usage.total(), self.config.cap()))
+            .wrapping(Wrapping::None);
+        // without autosize the panel gives the applet an icon-sized slot and the
+        // label gets wrapped and clipped
         self.core
             .applet
-            .text_button(
-                self.core.applet.text(format::panel(
-                    self.rate,
-                    self.tracker.usage.total(),
-                    self.config.cap(),
-                    self.core.applet.is_horizontal(),
-                )),
-                Message::TogglePopup,
-            )
+            .autosize_window(self.core.applet.text_button(label, Message::TogglePopup))
             .into()
     }
 

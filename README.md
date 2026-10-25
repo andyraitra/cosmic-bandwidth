@@ -5,8 +5,8 @@
 A [COSMIC](https://system76.com/cosmic) panel applet in the spirit of Bandwidth+ on macOS: live
 network rate and this month's data usage against an optional cap.
 
-Panel: `↓1.2 Mo/s ↑40.0 Ko/s · 12.4/50 Go`. Click it for received / sent totals, a gauge, the
-next reset date, the cap setting and a manual reset. Notifications fire at 80 % and 100 % of the
+Panel: this month's usage, `12.4/50 Go`. Click it for the live rate, received / sent totals, a
+gauge, the next reset date, the cap setting and a manual reset. Notifications fire at 80 % and 100 % of the
 cap. The interface is in French.
 
 ## Install (no root needed)
